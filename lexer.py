@@ -1,66 +1,21 @@
-from token import *
-from parser import *
+import toks
+import tokenize
+#from parser import *
 import sys
 
 def lexify(filename):
-    f = open(filename)
     tokens = []
+    f = open(filename, "rb")
+    tokgen = tokenize.tokenize(f.readline)
     while True:
-        buf = f.readline()
-        i, j = 0, len(buf) - 1
-        if not buf: break
-        while i <= j:
-            token = buf[i]
-            if token in Token.NULL:
-               pass
-            elif token in Token.SEPERATOR:
-                tokens.append(Seperator(token))
-            elif token in Token.PAREN:
-                tokens.append(Paren(token))
-            elif token in Token.ITER:
-                tokens.append(Iter(token))
-            elif token in Token.OPERATOR:
-                op = buf[i]
-                i += 1
-                while buf[i] in Token.OPERATOR:
-                    op = f'{op}{buf[i]}'
-                    i += 1
-                tokens.append(Operator(op))
-                continue
-            elif token in Token.STRING:
-                string = buf[i]
-                i += 1
-                while buf[i] != token:
-                    string = f'{string}{buf[i]}' 
-                    i += 1
-                string = f'{string}{buf[i]}' 
-                i += 1
-                tokens.append(String(string))
-                continue
-            elif token in Token.NUMBER:
-                num = buf[i]
-                i += 1
-                while buf[i].isnumeric() or buf[i] == '.':
-                    num = f'{num}{buf[i]}' 
-                    i += 1
-                tokens.append(Number(num))
-                continue
-            elif token.isalpha():
-                name = buf[i]
-                i += 1
-                while buf[i].isalpha():
-                    name = f'{name}{buf[i]}' 
-                    i += 1
-                if name in Token.KEYWORD:
-                    tokens.append(Keyword(name))
-                elif name in Token.OPERATOR:
-                    tokens.append(Operator(name))
-                else:
-                    tokens.append(Name(name))
-                continue
-            else:
-                raise ValueError(f'Token "{token}" not recognized')
-            i += 1
+        try:
+            token = next(tokgen)
+            if token.type is toks.token.ERRORTOKEN:
+                raise SyntaxError(f'Invalid token on line {token.start[0]}: "{token.line}"')
+            tokens.append(toks.Token(toks.tokens[token.type], token.string))
+        except StopIteration:
+            print(*[str(t) for t in tokens])
+            return
     printtoks(tokens)
     ast = parse(tokens)
     print(ast.body[0])

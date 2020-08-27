@@ -1,1 +1,2 @@
-foo(x, 1, 5.6)`
+def foo(bar, verbose):
+    return bar

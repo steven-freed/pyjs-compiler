@@ -1,43 +1,42 @@
-from ast import *
-from token import (Iter,Seperator,String,Number,Name,Operator,Keyword,Paren)
-from expr import CallExpr
+import sys
+import ast
 
-def parse(tokens):
-    ast = AST()
-    i = 0
-    def walk():
-        nonlocal i
-        token = tokens[i]
-        if token.type_ == Number.type_:
-            i += 1
-            return Number(token.value)
-        elif token.type_ == String.type_:
-            i += 1
-            return String(token.value)
-        if token.type_ == Name.type_:
-            i += 1
-            if tokens[i].type_ == Paren.type_ and \
-                tokens[i].value == '(':
-                callexpr = CallExpr(token)
-                i += 1
-                token = tokens[i]
-                while token.type_ != Paren.type_ or \
-                    (token.type_ == Paren.type_ and token.value != ')'):
-                    if token.type_ == Seperator.type_:
-                        i += 1
-                        token = tokens[i]
-                        continue
-                    print(i, token, tokens[i])
-                    callexpr.args.append(walk())
-                    token = tokens[i]
-                i += 1
-                return callexpr
-            else:
-                return Name(token.value)
-        else:
-            raise SyntaxError(f'Could not parse token: "{token.value}" of type "{token.type_}"')
+def parse(filename):
+    with open(filename, "rb") as file_:
+        tree = ast.parse(file_.read())
+        newfile = open(f"{filename[:-3]}.js", "w")
+        generate_code(newfile, tree)
+        #generator = ast.walk(tree)
+    return#TODO
+    while True:
+        try:
+            expr = next(generator)
+            trans = fns.get(type(expr))
+            if trans:
+                print(trans(expr))
+        except StopIteration:
+            print("Done Parsing :)")
+            break
 
-    while i < len(tokens):
-        node = walk()
-        ast.body.append(node)
-    return ast
+def FunctionDefPrint(node):
+    keyword = "function"
+    name = node.name
+    args = ','.join([arg.arg for arg in node.args.args])
+    return f"{keyword} {name}({args}){{"
+
+def generate_code(handle, node):
+    codemap = {
+        ast.FunctionDef: FunctionDefPrint,
+    }
+    try:
+        strdata = codemap[type(node)](node)
+        print(f"Wrote {strdata} to file")
+        handle.write(strdata)       
+    except KeyError:
+        err = KeyError(f"Node of type '{type(node)}' does not exist")
+        print(err)
+        [generate_code(handle, child) for child in node.body]
+    handle.close()
+
+parse(sys.argv[1])
+

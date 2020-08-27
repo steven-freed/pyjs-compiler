@@ -20,6 +20,17 @@ def parse(filename):
             print("Done Parsing :)")
             break
 
+def BoolOpPrint(node, codemap):
+    left, right = [generate_code(node) for node in node.values]
+    bool_ = generate_code(node.op)
+    return f"{left} {bool_} {right}"
+
+def OrPrint(node, codemap):
+    return "||"
+
+def AndPrint(node, codemap):
+    return "&&"
+
 def DictPrint(node, codemap):
     keys = [generate_code(el) for el in node.keys]
     values = [generate_code(el) for el in node.values]
@@ -52,7 +63,8 @@ def ConstantPrint(node, codemap):
     elif type(node.value) in string:
         return str(node.value)
     else:
-        raise TypeError(f"Did not recognize value '{node.value}' as type ast.Constant")
+        nameconstmap = {True: "true", False: "false", None: "null"}
+        return nameconstmap[node.value]
 
 def JoinedStrPrint(node, codemap):
     strval = ''
@@ -87,6 +99,9 @@ def generate_code(node):
         ast.Dict: DictPrint,
         ast.List: ListPrint,
         ast.Set: SetPrint,
+        ast.BoolOp: BoolOpPrint,
+        ast.Or: OrPrint,
+        ast.And: AndPrint,
     }
     try:
         return codemap[type(node)](node, codemap)

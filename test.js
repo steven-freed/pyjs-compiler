@@ -1,1 +1,1 @@
-hello +3+5.6
+var x = ["hello","world"];

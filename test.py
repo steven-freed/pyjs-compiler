@@ -1,2 +1,1 @@
-def foo(bar, verbose):
-    return bar
+f"hello {3} {5.6}"

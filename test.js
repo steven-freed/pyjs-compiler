@@ -1,1 +1,1 @@
-var x = ["hello","world"];
+var x = {'a': 1, 'b': 4};

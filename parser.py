@@ -20,8 +20,22 @@ def parse(filename):
             print("Done Parsing :)")
             break
 
-def TuplePrint(node, codemap):
+def DictPrint(node, codemap):
+    keys = [generate_code(el) for el in node.keys]
+    values = [generate_code(el) for el in node.values]
+    return dict(zip(keys, values))
+
+def SetPrint(node, codemap):
+    elts = ",".join(set(generate_code(el) for el in node.elts))
+    return f"[{elts}]"
+
+def ListPrint(node, codemap):
     elts = ",".join([generate_code(el) for el in node.elts])
+    return f"[{elts}]"
+
+def TuplePrint(node, codemap):
+    # TODO fix for Assign Node
+    elts = ",".join(tuple(generate_code(el) for el in node.elts))
     return f"[{elts}]"
 
 def NamePrint(node, codemap):
@@ -36,7 +50,7 @@ def ConstantPrint(node, codemap):
     if type(node.value) in numeric:
         return node.value
     elif type(node.value) in string:
-        return f'"{node.value}"'
+        return str(node.value)
     else:
         raise TypeError(f"Did not recognize value '{node.value}' as type ast.Constant")
 
@@ -70,6 +84,9 @@ def generate_code(node):
         ast.Name: NamePrint,
         ast.Assign: AssignPrint,
         ast.Tuple: TuplePrint,
+        ast.Dict: DictPrint,
+        ast.List: ListPrint,
+        ast.Set: SetPrint,
     }
     try:
         return codemap[type(node)](node, codemap)

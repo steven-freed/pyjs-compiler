@@ -20,6 +20,55 @@ def parse(filename):
             print("Done Parsing :)")
             break
 
+def AddPrint(node, codemap):
+    return "+"
+
+def SubPrint(node, codemap):
+    return "-"
+
+def MultPrint(node, codemap):
+    return "*"
+
+def DivPrint(node, codemap):
+    return "/"
+
+def FloorDivPrint(node, codemap):
+    return "/"
+
+def ModPrint(node, codemap):
+    return "%"
+
+def PowPrint(node, codemap):
+    raise SyntaxError("Power not yet implemented")
+
+def LShiftPrint(node, codemap):
+    return "<<"
+
+def RShiftPrint(node, codemap):
+    return ">>"
+
+def BitOrPrint(node, codemap):
+    return "|"
+
+def BitXorPrint(node, codemap):
+    return "^"
+
+def BitAndPrint(node, codemap):
+    return "&"
+
+def MatMultPrint(node, codemap):
+    raise SyntaxError("Compiler does not support Matrix Multiplication Binary Operator '@'")
+
+def BinOpPrint(node, codemap):
+    left, op, right = generate_code(node.left), generate_code(node.op), generate_code(node.right)
+    return f"{left}{op}{right}"
+
+def NotPrint(node, codemap):
+    return "!"
+
+def UnaryOpPrint(node, codemap):
+    return f"{generate_code(node.op)}{generate_code(node.operand)}"
+
 def BoolOpPrint(node, codemap):
     left, right = [generate_code(node) for node in node.values]
     bool_ = generate_code(node.op)
@@ -102,6 +151,22 @@ def generate_code(node):
         ast.BoolOp: BoolOpPrint,
         ast.Or: OrPrint,
         ast.And: AndPrint,
+        ast.UnaryOp: UnaryOpPrint,
+        ast.Not: NotPrint,
+        ast.BinOp: BinOpPrint,
+        ast.Add: AddPrint,
+        ast.Sub: SubPrint,
+        ast.Mult: MultPrint,
+        ast.Div: DivPrint,
+        ast.FloorDiv: FloorDivPrint,
+        ast.Mod: ModPrint,
+        ast.Pow: PowPrint,
+        ast.LShift: LShiftPrint,
+        ast.RShift: RShiftPrint,
+        ast.BitOr: BitOrPrint,
+        ast.BitXor: BitXorPrint,
+        ast.BitAnd: BitAndPrint,
+        ast.MatMult: MatMultPrint,
     }
     try:
         return codemap[type(node)](node, codemap)

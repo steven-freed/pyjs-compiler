@@ -39,7 +39,7 @@ def ModPrint(node, codemap):
     return "%"
 
 def PowPrint(node, codemap):
-    raise SyntaxError("Power not yet implemented")
+    return None
 
 def LShiftPrint(node, codemap):
     return "<<"
@@ -61,7 +61,12 @@ def MatMultPrint(node, codemap):
 
 def BinOpPrint(node, codemap):
     left, op, right = generate_code(node.left), generate_code(node.op), generate_code(node.right)
-    return f"{left}{op}{right}"
+    if isinstance(node.op, ast.Pow):
+        return f"Math.pow({left}, {right})"
+    elif isinstance(node.op, ast.FloorDiv):
+        return f"Math.floor(({left}{op}{right}))"
+    else:
+        return f"{left}{op}{right}"
 
 def NotPrint(node, codemap):
     return "!"

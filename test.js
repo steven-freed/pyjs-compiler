@@ -1,1 +1,1 @@
-var x = 4;del x;
+l.slice(5)

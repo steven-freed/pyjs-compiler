@@ -1,6 +1,36 @@
 import ast
 import decimal
 
+def SubscriptPrint(node, nodemap):
+    value, slice_ = generate_code(node.value), generate_code(node.slice)
+    return f"{value}{slice_}"
+
+def ExtSlicePrint(node, nodemap):
+    raise SyntaxError("Complex slicing is not supported by JavaScript")
+
+def SlicePrint(node, nodemap):
+    if node.step: raise SyntaxError("Slicing by step is not supported by JavaScript")
+    l = generate_code(node.lower) if node.lower else 0
+    u = generate_code(node.upper) if node.upper else None
+    if not u:
+        return f".slice({l})"
+    else:
+        return f".slice({l},{u})"
+
+def IndexPrint(node, nodemap):
+    value = generate_code(node.value)
+    return f"[{value}]"
+
+def AttributePrint(node, nodemap):
+    # TODO replace append with push, remove with pop, etc.
+    value = generate_code(node.value)
+    return f"{value}.{attrmap.get(type(value), {}).get(node.attr, node.attr)}"
+
+def IfExpPrint(node, nodemap):
+    ifexpr = generate_code(node.test)
+    body, orelse = generate_code(node.body), generate_code(node.orelse)
+    return f"{ifexpr} ? {body}:{orelse};"    
+
 def DeletePrint(node, nodemap):
     targets = ",".join([str(generate_code(t)) for t in node.targets])
     return f"del {targets};"
@@ -237,6 +267,12 @@ _nodemap = {
     ast.Call: CallPrint,
     ast.keyword: keywordPrint,
     ast.Delete: DeletePrint,
+    ast.IfExp: IfExpPrint,
+    ast.Attribute: AttributePrint,
+    ast.Subscript: SubscriptPrint,
+    ast.Index: IndexPrint,
+    ast.Slice: SlicePrint,
+    ast.ExtSlice: ExtSlicePrint,
 }
 def generate_code(node):
     try:

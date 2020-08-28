@@ -1,6 +1,10 @@
 import ast
 import decimal
 
+def DeletePrint(node, nodemap):
+    targets = ",".join([str(generate_code(t)) for t in node.targets])
+    return f"del {targets};"
+
 def CallPrint(node, nodemap):
     func = generate_code(node.func)
     callstr = f"{func}("
@@ -163,7 +167,7 @@ def ConstantPrint(node, nodemap):
     if type(node.value) in numeric:
         return node.value
     elif type(node.value) in string:
-        return str(node.value)
+        return f'"{node.value}"'
     else:
         nameconstmap = {True: "true", False: "false", None: "null"}
         return nameconstmap[node.value]
@@ -232,6 +236,7 @@ _nodemap = {
     ast.NotIn: NotInPrint,
     ast.Call: CallPrint,
     ast.keyword: keywordPrint,
+    ast.Delete: DeletePrint,
 }
 def generate_code(node):
     try:

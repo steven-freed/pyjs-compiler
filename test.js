@@ -1,1 +1,1 @@
-foo(1.4,hi);
+var x = 4;del x;

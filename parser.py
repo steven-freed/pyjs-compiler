@@ -20,6 +20,44 @@ def parse(filename):
             print("Done Parsing :)")
             break
 
+def NotInPrint(node, codemap):
+    return None
+
+def InPrint(node, codemap):
+    return "in"
+
+def IsNotPrint(node, codemap):
+    return "!=="
+
+def IsPrint(node, codemap):
+    return "==="
+
+def GtEPrint(node, codemap):
+    return ">="
+
+def GtPrint(node, codemap):
+    return ">"
+
+def LtEPrint(node, codemap):
+    return "<="
+
+def LtPrint(node, codemap):
+    return "<"
+
+def NotEqPrint(node, codemap):
+    return "!="
+
+def EqPrint(node, codemap):
+    return "=="
+
+def ComparePrint(node, codemap):
+    left = generate_code(node.left)
+    cmpstr = str(left)
+    for i in range(len(node.comparators)):
+        op, comp = generate_code(node.ops[i]), generate_code(node.comparators[i])
+        cmpstr = f"{cmpstr}{op}{comp}"
+    return cmpstr
+
 def AddPrint(node, codemap):
     return "+"
 
@@ -172,6 +210,17 @@ def generate_code(node):
         ast.BitXor: BitXorPrint,
         ast.BitAnd: BitAndPrint,
         ast.MatMult: MatMultPrint,
+        ast.Compare: ComparePrint,
+        ast.Eq: EqPrint,
+        ast.NotEq: NotEqPrint,
+        ast.Lt: LtPrint,
+        ast.LtE: LtEPrint,
+        ast.Gt: GtPrint,
+        ast.GtE: GtEPrint,
+        ast.Is: IsPrint,
+        ast.IsNot: IsNotPrint,
+        ast.In: InPrint,
+        ast.NotIn: NotInPrint,
     }
     try:
         return codemap[type(node)](node, codemap)

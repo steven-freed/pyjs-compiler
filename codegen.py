@@ -31,9 +31,15 @@ def IfExpPrint(node, nodemap):
     body, orelse = generate_code(node.body), generate_code(node.orelse)
     return f"{ifexpr} ? {body}:{orelse};"    
 
+def StarredPrint(node, nodemap):
+    #TODO
+    if isinstance(node.ctx, ast.Store):
+        starred = generate_code(node.value)
+        raise SyntaxError("Not Implemented")
+
 def DeletePrint(node, nodemap):
     targets = ",".join([str(generate_code(t)) for t in node.targets])
-    return f"del {targets};"
+    return f"delete {targets};"
 
 def CallPrint(node, nodemap):
     func = generate_code(node.func)
@@ -178,7 +184,7 @@ def SetPrint(node, nodemap):
     return f"[{elts}]"
 
 def ListPrint(node, nodemap):
-    elts = ",".join([generate_code(el) for el in node.elts])
+    elts = ",".join([str(generate_code(el)) for el in node.elts])
     return f"[{elts}]"
 
 def TuplePrint(node, nodemap):
@@ -222,6 +228,15 @@ def AssignPrint(node, nodemap):
     targets = ",".join([generate_code(target) for target in node.targets])
     value = generate_code(node.value)
     return f"{declare} {targets} = {value};"
+
+def AugAssignPrint(node, nodemap):
+    target, op, value = generate_code(node.target), generate_code(node.op), generate_code(node.value)
+    if isinstance(node.op, ast.Pow):
+        return f"{target} = Math.pow({target}, {value});"
+    elif isinstance(node.op, ast.FloorDiv):
+        return f"{target} = Math.floor(({target}{op}{value}));"
+    else:
+        return f"{target}{op}={value};"
 
 _nodemap = {
     ast.FunctionDef: FunctionDefPrint,
@@ -273,6 +288,8 @@ _nodemap = {
     ast.Index: IndexPrint,
     ast.Slice: SlicePrint,
     ast.ExtSlice: ExtSlicePrint,
+    ast.Starred: StarredPrint,
+    ast.AugAssign: AugAssignPrint,
 }
 def generate_code(node):
     try:

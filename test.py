@@ -1,7 +1,5 @@
-if x == y:
-    x += 2
+t = Test(1, "b")
+with t:
+    t.foo(1,2)
+    x += 4
     print("hi")
-else:
-    foo(1,verbose=True)
-    print("yo")
-    y += 5

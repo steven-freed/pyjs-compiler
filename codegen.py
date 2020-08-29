@@ -30,7 +30,7 @@ def IndexPrint(node, nodemap):
 def AttributePrint(node, nodemap):
     # TODO replace append with push, remove with pop, etc.
     value = generate_code(node.value)
-    return f"{value}.{attrmap.get(type(value), {}).get(node.attr, node.attr)}"
+    return f"{value}.{node.attr}"
 
 def IfExpPrint(node, nodemap):
     ifexpr = generate_code(node.test)
@@ -256,6 +256,12 @@ def PassPrint(node, nodemap):
     # allows client to make passes without effecting js
     return ""
 
+def BreakPrint(node, nodemap):
+    return "break;"
+
+def ContinuePrint(node, nodemap):
+    return "continue;"
+
 def IfPrint(node, nodemap):
     cmptest = generate_code(node.test)
     ifstr = f"if({cmptest}){{"
@@ -269,7 +275,40 @@ def IfPrint(node, nodemap):
         ifstr = f"{ifstr}else{{{elsebody}}}"
     return ifstr
 
+def WhilePrint(node, nodemap):
+    cmptest = generate_code(node.test)
+    whilebody = "".join([generate_code(node) for node in node.body])
+    return f"while({cmptest}){{{whilebody}}}"
+
+def ForPrint(node, nodemap):
+    # implement builtins to use #TODO
+    pass
+
+def withitemPrint(node, nodemap):
+    withitemstr = ""
+    name, alias = generate_code(node.context_expr), None
+    if node.optional_vars:
+        alias = generate_code(node.optional_vars)
+        withitemstr = f"var {alias} = {name}"
+    withitemstr = f"{withitemstr}{alias or name}.__enter__();"
+    return withitemstr
+
+def WithPrint(node, nodemap):
+    def withitemAlias(node):
+        name = None
+        if node.optional_vars:
+            name = generate_code(node.optional_vars)
+        else:
+            name = generate_code(node.context_expr)
+        return name
+    itemaliases = [withitemAlias(node) for node in node.items]
+    exitmethods = "".join([f"{alias}.__exit__(null, null, null);" for alias in itemaliases])
+    items = "".join([str(withitemPrint(node, nodemap)) for node in node.items])
+    withbody = "".join([str(generate_code(node)) for node in node.body])
+    return f"{items}{withbody}{exitmethods}"
+
 _nodemap = {
+    type(None): lambda a,b:"",
     ast.FunctionDef: FunctionDefPrint,
     ast.JoinedStr: JoinedStrPrint,
     ast.Constant: ConstantPrint,
@@ -325,6 +364,12 @@ _nodemap = {
     ast.Assert: AssertPrint,
     ast.Pass: PassPrint,
     ast.If: IfPrint,
+    ast.Break: BreakPrint,
+    ast.Continue: ContinuePrint,
+    ast.While: WhilePrint,
+    ast.For: ForPrint,
+    ast.withitem: withitemPrint,
+    ast.With: WithPrint,
 }
 def generate_code(node):
     try:

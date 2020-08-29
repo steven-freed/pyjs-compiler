@@ -1,6 +1,12 @@
 import ast
 import decimal
 
+#TODO
+"""
+- implement imports: make python modules using es3 js module pattern
+- implement builtins/exc: make map of builtins and exceptions to js
+"""
+
 def SubscriptPrint(node, nodemap):
     value, slice_ = generate_code(node.value), generate_code(node.slice)
     return f"{value}{slice_}"
@@ -238,6 +244,31 @@ def AugAssignPrint(node, nodemap):
     else:
         return f"{target}{op}={value};"
 
+def RaisePrint(node, nodemap):
+    print(node, dir(node))
+    return None #TODO
+
+def AssertPrint(node, nodemap):
+    # allows client to make assertions without effecting js 
+    return ""
+
+def PassPrint(node, nodemap):
+    # allows client to make passes without effecting js
+    return ""
+
+def IfPrint(node, nodemap):
+    cmptest = generate_code(node.test)
+    ifstr = f"if({cmptest}){{"
+    ifbody = "".join([str(generate_code(node)) for node in node.body])
+    ifstr = f"{ifstr}{ifbody}}}"
+    if isinstance(node.orelse[0], ast.If): # If nodes for orelse = elif
+        elifstr = "".join([str(IfPrint(node, nodemap)) for node in node.orelse])
+        ifstr = f"{ifstr}else {elifstr}"
+    else: # else body of nodes
+        elsebody = "".join([str(generate_code(node)) for node in node.orelse])
+        ifstr = f"{ifstr}else{{{elsebody}}}"
+    return ifstr
+
 _nodemap = {
     ast.FunctionDef: FunctionDefPrint,
     ast.JoinedStr: JoinedStrPrint,
@@ -290,6 +321,10 @@ _nodemap = {
     ast.ExtSlice: ExtSlicePrint,
     ast.Starred: StarredPrint,
     ast.AugAssign: AugAssignPrint,
+    ast.Raise: RaisePrint,
+    ast.Assert: AssertPrint,
+    ast.Pass: PassPrint,
+    ast.If: IfPrint,
 }
 def generate_code(node):
     try:

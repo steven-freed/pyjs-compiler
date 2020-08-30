@@ -2,13 +2,14 @@ import sys
 import ast
 import codegen
 
-def parse(infile, outfile):
+def parse(infile):
     with open(infile, "rb") as file_:
         tree = ast.parse(file_.read())
-        outfile = outfile if outfile.find(".js") > -1 else f"{outfile}.js"
-        with open(outfile, "w") as newfile_:
+        jsscript = f"{infile[:-3]}.js"
+        with open(jsscript, "w") as newfile_:
             pymods_data = ""#codegen.generate_pymods()
-            data = codegen.generate_code(tree)
+            module = jsscript[:-3]
+            data = codegen.generate_module(module, tree)
             newfile_.write(pymods_data + data)
     return
     #TODO implement visitors for things like; comprehensions (replace with For),Tuple (replace with Array or List), etc.
@@ -23,7 +24,6 @@ def parse(infile, outfile):
             print("Done Parsing :)")
             break
     """
-try:
-    parse(sys.argv[1], sys.argv[2])
-except IndexError:
-    parse(sys.argv[1], "out.js")
+
+parse(sys.argv[1])
+

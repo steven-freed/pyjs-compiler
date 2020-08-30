@@ -1,0 +1,1 @@
+var test = (function(){var k="key";function foo(){print("hi");}return {'foo':foo,'k':k}})();

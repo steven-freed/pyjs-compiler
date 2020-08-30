@@ -480,6 +480,15 @@ def generate_code(node):
         else:
             raise SyntaxError(f"Type {type(node)} not supported by JavaScript or already has built in functionality")
 
+def generate_module(module, tree):
+    data = f"var {module} = (function(){{"
+    data += generate_code(tree)
+    data += f"return {{"
+    for gvar in GLOBALS:
+        data += f"'{gvar}':{gvar},"
+    data = data[:-1] + "}})();"
+    return data
+
 def generate_pymods():
     with open("pymods/__builtins__.js", "r") as f:
         return f.read()

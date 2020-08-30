@@ -1,1 +1,0 @@
-var k="key";function foo(){print("hi");}

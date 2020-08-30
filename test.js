@@ -1,1 +1,1 @@
-var t = Test(1,"b");;t.__enter__();t.foo(1,2);x+=4;print("hi");t.__exit__(null, null, null);
+try{print("hi");}catch(te){throw te;}

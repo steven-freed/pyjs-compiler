@@ -245,8 +245,13 @@ def AugAssignPrint(node, nodemap):
         return f"{target}{op}={value};"
 
 def RaisePrint(node, nodemap):
-    print(node, dir(node))
-    return None #TODO
+    throwstr = "throw "
+    if node.exc:
+        exc = generate_code(node.exc)
+        throwstr += f"{exc};"
+    else:
+        throwstr += "_;"
+    return throwstr
 
 def AssertPrint(node, nodemap):
     # allows client to make assertions without effecting js 
@@ -306,6 +311,32 @@ def WithPrint(node, nodemap):
     items = "".join([str(withitemPrint(node, nodemap)) for node in node.items])
     withbody = "".join([str(generate_code(node)) for node in node.body])
     return f"{items}{withbody}{exitmethods}"
+
+def TryPrint(node, nodemap):
+    trystr = "try{"
+    trybody = "".join([str(generate_code(node)) for node in node.body])
+    trystr += f"{trybody}}}"
+    if len(node.handlers) > 1:
+        raise SyntaxError(f"JavaScript only allows for a single handler, you have {len(node.handlers)} handlers")
+    handler = generate_code(node.handlers[0])
+    trystr += f"{handler}"
+    return trystr
+
+def ExceptHandlerPrint(node, nodemap):
+    catchstr = f"catch({node.name or '_'}){{"
+    catchbody = ""
+    for n in node.body:
+        nodestr = generate_code(n)
+        """
+        if isinstance(n, ast.Raise):
+            try:
+                nodestr.index(node.name)
+            except:
+                nodestr += f"{node.name};"
+        """
+        catchbody += nodestr
+    catchstr += f"{catchbody}}}"
+    return catchstr
 
 _nodemap = {
     type(None): lambda a,b:"",
@@ -370,6 +401,8 @@ _nodemap = {
     ast.For: ForPrint,
     ast.withitem: withitemPrint,
     ast.With: WithPrint,
+    ast.Try: TryPrint,
+    ast.ExceptHandler: ExceptHandlerPrint,
 }
 def generate_code(node):
     try:

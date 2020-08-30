@@ -1,5 +1,7 @@
-t = Test(1, "b")
-with t:
-    t.foo(1,2)
-    x += 4
+try:
     print("hi")
+except TypeError as te:
+    raise te
+finally:
+    x += 3
+    print("done")

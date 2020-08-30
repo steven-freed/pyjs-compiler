@@ -1,5 +1,5 @@
 # pyjs-compiler
-Python to JavaScript Compiler. Compiles Python3 to the widely supported ES3 JavaScript.
+Python to JavaScript Compiler. Compiles Python3 to the widely supported ES3 JavaScript including some mild minifications of code.
 
 # Quick Start
 1. Write your Python3 program

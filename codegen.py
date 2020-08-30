@@ -39,10 +39,7 @@ def IfExpPrint(node, nodemap):
     return f"{ifexpr} ? {body}:{orelse};"    
 
 def StarredPrint(node, nodemap):
-    #TODO
-    if isinstance(node.ctx, ast.Store):
-        starred = generate_code(node.value)
-        raise SyntaxError("Not Implemented")
+    raise SyntaxError("JavaScript does not support packing or unpacking")
 
 def DeletePrint(node, nodemap):
     targets = ",".join([str(generate_code(t)) for t in node.targets])
@@ -456,3 +453,6 @@ def generate_code(node):
         else:
             raise SyntaxError(f"Type {type(node)} not supported by JavaScript or already has built in functionality")
 
+def generate_pymods():
+    with open("pymods/__builtins__.js", "r") as f:
+        return f.read()

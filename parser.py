@@ -7,8 +7,9 @@ def parse(infile, outfile):
         tree = ast.parse(file_.read())
         outfile = outfile if outfile.find(".js") > -1 else f"{outfile}.js"
         with open(outfile, "w") as newfile_:
+            pymods_data = codegen.generate_pymods()
             data = codegen.generate_code(tree)
-            newfile_.write(data)
+            newfile_.write(pymods_data + data)
     return
     #TODO implement visitors for things like; comprehensions (replace with For),Tuple (replace with Array or List), etc.
     """

@@ -296,10 +296,14 @@ def WhilePrint(node, nodemap):
     return f"while({cmptest}){{{whilebody}}}"
 
 def ForPrint(node, nodemap):
-    # implement builtins to use #TODO
     target, iter_ = generate_code(node.target), generate_code(node.iter)
-    range_ = eval(iter_[:-1]) if iter_.find("range(") > -1 else iter_
-    forstr = f"for(var {target}={range_.start};{target}<{range_.stop};{target}+={range_.step}){{"
+    range_ = None
+    if iter_.find("range(") > -1:
+        range_ = eval(iter_[:-1]) 
+    if range_:
+        forstr = f"for(var {target}={range_.start};{target}<{range_.stop};{target}+={range_.step}){{"
+    else:
+        forstr = f"for(var {target} in {iter_}){{{target} = {iter_}[{target}];"
     forbody = "".join([str(generate_code(node)) for node in node.body])
     forstr += f"{forbody}}}"
     return forstr

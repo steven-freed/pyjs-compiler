@@ -48,20 +48,5 @@ function zip(x, y) {
     }
     return zipped;
 }
-function range() {
-    if(arguments.length > 3) throw Error("Too many aguments to range(" + arguments + ")");
-    var start = arguments[0] 
-    var end = arguments[1]
-    var step = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-    var iter = [];
-    if(arguments.length === 1) {
-        end = start;
-        start = 0;
-    }
-    for(var i = start; i < end; i+=step) {
-        iter.push(i);
-    }
-    return iter;
-}
 
-for(var i=0;i<10;i+=1){print(i);}
+var x = {'"name"': '"steve"', '"age"': 23};for(var [k,v] in x){[k,v] = x[[k,v]];print(k,v);}

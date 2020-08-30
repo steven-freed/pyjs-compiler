@@ -1,1 +1,1 @@
-try{print("hi");}catch(te){throw te;}
+try{print("hi");}catch(te){throw te;}finally{x+=3;print("done");}

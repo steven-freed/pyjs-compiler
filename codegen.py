@@ -319,7 +319,9 @@ def TryPrint(node, nodemap):
     if len(node.handlers) > 1:
         raise SyntaxError(f"JavaScript only allows for a single handler, you have {len(node.handlers)} handlers")
     handler = generate_code(node.handlers[0])
-    trystr += f"{handler}"
+    trystr += f"{handler}finally{{"
+    finalbody = "".join([str(generate_code(node)) for node in node.finalbody])
+    trystr += f"{finalbody}}}"
     return trystr
 
 def ExceptHandlerPrint(node, nodemap):

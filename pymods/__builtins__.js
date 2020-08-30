@@ -48,19 +48,4 @@ function zip(x, y) {
     }
     return zipped;
 }
-function range() {
-    if(arguments.length > 3) throw Error("Too many aguments to range(" + arguments + ")");
-    var start = arguments[0] 
-    var end = arguments[1]
-    var step = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-    var iter = [];
-    if(arguments.length === 1) {
-        end = start;
-        start = 0;
-    }
-    for(var i = start; i < end; i+=step) {
-        iter.push(i);
-    }
-    return iter;
-}
 

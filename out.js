@@ -64,4 +64,4 @@ function range() {
     return iter;
 }
 
-print("hello world");
+for(var i=0;i<10;i+=1){print(i);}

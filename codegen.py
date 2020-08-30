@@ -297,7 +297,12 @@ def WhilePrint(node, nodemap):
 
 def ForPrint(node, nodemap):
     # implement builtins to use #TODO
-    pass
+    target, iter_ = generate_code(node.target), generate_code(node.iter)
+    range_ = eval(iter_[:-1]) if iter_.find("range(") > -1 else iter_
+    forstr = f"for(var {target}={range_.start};{target}<{range_.stop};{target}+={range_.step}){{"
+    forbody = "".join([str(generate_code(node)) for node in node.body])
+    forstr += f"{forbody}}}"
+    return forstr
 
 def withitemPrint(node, nodemap):
     withitemstr = ""

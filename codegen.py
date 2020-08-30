@@ -7,6 +7,7 @@ from collections.abc import Iterable
 - implement imports: make python modules using es3 js module pattern
 - implement builtins/exc: make map of builtins and exceptions to js
 """
+GLOBALS = set()
 
 def SubscriptPrint(node, nodemap):
     value, slice_ = generate_code(node.value), generate_code(node.slice)
@@ -240,10 +241,19 @@ def LambdaPrint(node, nodemap):
     return FunctionDefPrint(node, nodemap)
 
 def AssignPrint(node, nodemap):
-    declare = "var"
-    targets = ",".join([generate_code(target) for target in node.targets])
-    value = generate_code(node.value)
-    return f"{declare} {targets} = {value};"
+    asnstr = "var "
+    # TODO fix assign for tuples
+    if getattr(node.value, "elts", False) and getattr(node.targets[0], "elts", False):
+        for i in range(len(node.value.elts)):
+            target, val = generate_code(node.targets[0].elts[i]), generate_code(node.value.elts[i])    
+            if (i + 1) == len(node.value.elts):
+                asnstr += f"{target}={val};"
+            else:
+                asnstr += f"{target}={val},"
+    else:
+        target, val = generate_code(node.targets[0]), generate_code(node.value)
+        asnstr += f"{target}={val};"
+    return asnstr
 
 def AugAssignPrint(node, nodemap):
     target, op, value = generate_code(node.target), generate_code(node.op), generate_code(node.value)
@@ -458,7 +468,15 @@ def generate_code(node):
         if isinstance(node, ast.Expr):
             return _nodemap[type(node.value)](node.value, _nodemap)
         elif isinstance(node, ast.Module):
-            return ''.join([generate_code(child) for child in node.body])
+            mod = ""
+            for child in node.body:
+                if getattr(child, "name", False):
+                    GLOBALS.add(child.name)
+                elif getattr(child, "targets", False):
+                   [GLOBALS.add(target.id) for target in child.targets]
+                mod += generate_code(child)
+            print("GLOBALS", GLOBALS)
+            return mod 
         else:
             raise SyntaxError(f"Type {type(node)} not supported by JavaScript or already has built in functionality")
 

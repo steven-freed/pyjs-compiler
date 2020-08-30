@@ -2,14 +2,16 @@ import sys
 import ast
 import codegen
 
-def parse(filename):
-    with open(filename, "rb") as file_:
+def parse(infile, outfile):
+    with open(infile, "rb") as file_:
         tree = ast.parse(file_.read())
-        with open(f"{filename[:-3]}.js", "w") as newfile_:
+        outfile = outfile if outfile.find(".js") > -1 else f"{outfile}.js"
+        with open(outfile, "w") as newfile_:
             data = codegen.generate_code(tree)
             newfile_.write(data)
-        #generator = ast.walk(tree)
-    return#TODO implement visitors for things like; comprehensions (replace with For),Tuple (replace with Array or List), etc.
+    return
+    #TODO implement visitors for things like; comprehensions (replace with For),Tuple (replace with Array or List), etc.
+    """
     while True:
         try:
             expr = next(generator)
@@ -19,6 +21,8 @@ def parse(filename):
         except StopIteration:
             print("Done Parsing :)")
             break
-
-parse(sys.argv[1])
-
+    """
+try:
+    parse(sys.argv[1], sys.argv[2])
+except IndexError:
+    parse(sys.argv[1], "out.js")

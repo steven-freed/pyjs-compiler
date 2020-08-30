@@ -229,7 +229,7 @@ def ReturnPrint(node, nodemap):
 
 def FunctionDefPrint(node, nodemap):
     name = getattr(node, "name", "")
-    args = ','.join([arg.arg for arg in node.args.args])
+    args = generate_code(node.args)
     fn = f"function {name}({args}){{"
     if isinstance(node.body, Iterable):
         fnbody = "".join([str(generate_code(node)) for node in node.body])
@@ -342,16 +342,33 @@ def ExceptHandlerPrint(node, nodemap):
     catchbody = ""
     for n in node.body:
         nodestr = generate_code(n)
-        """
-        if isinstance(n, ast.Raise):
-            try:
-                nodestr.index(node.name)
-            except:
-                nodestr += f"{node.name};"
-        """
         catchbody += nodestr
     catchstr += f"{catchbody}}}"
     return catchstr
+
+def argumentsPrint(node, nodemap):
+    # TODO fix kwargs, add if checks for null arg and put default
+    args = ','.join([arg.arg for arg in node.args])
+    return args
+
+def argPrint(node, nodemap):
+    return str(node.arg)
+
+def YieldPrint(node, nodemap):
+    raise SyntaxError("Yield not supported")
+
+def YieldFromPrint(node, nodemap):
+    raise SyntaxError("YieldFrom not supported")
+
+def NonlocalPrint(node, nodemap):
+    return ""
+
+def GlobalPrint(node, nodemap):
+    # add to globals for js module pattern
+    return ""
+
+def ClassDefPrint(node, nodemap):
+    raise SyntaxError("class not supported yet...")
 
 _nodemap = {
     type(None): lambda a,b:"",
@@ -420,6 +437,13 @@ _nodemap = {
     ast.ExceptHandler: ExceptHandlerPrint,
     ast.Return: ReturnPrint,
     ast.Lambda: LambdaPrint,
+    ast.arguments: argumentsPrint,
+    ast.arg: argPrint,
+    ast.Yield: YieldPrint,
+    ast.YieldFrom: YieldFromPrint,
+    ast.Nonlocal: NonlocalPrint,
+    ast.Global: GlobalPrint,
+    ast.ClassDef: ClassDefPrint,
 }
 def generate_code(node):
     try:
@@ -427,6 +451,8 @@ def generate_code(node):
     except KeyError:
         if isinstance(node, ast.Expr):
             return _nodemap[type(node.value)](node.value, _nodemap)
-        else:
+        elif isinstance(node, ast.Module):
             return ''.join([generate_code(child) for child in node.body])
+        else:
+            raise SyntaxError(f"Type {type(node)} not supported by JavaScript or already has built in functionality")
 

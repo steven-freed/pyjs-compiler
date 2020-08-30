@@ -1,4 +1,6 @@
 def foo(x, y):
-    print("Yo")
-
-foo = lambda x, y: print("Yo")
+    if x == y:
+        x += 1
+    else:
+        y **= 2
+    return x if x >= y else y

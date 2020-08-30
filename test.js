@@ -1,1 +1,0 @@
-function foo(x,y){print("Yo");}var foo = function (x,y){return print("Yo");};

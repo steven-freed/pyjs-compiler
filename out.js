@@ -1,0 +1,1 @@
+function foo(x,y){if(x == y){x+=1;}else{y = Math.pow(y, 2);}return x >= y ? x:y;;}

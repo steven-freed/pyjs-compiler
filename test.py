@@ -1,7 +1,4 @@
-try:
-    print("hi")
-except TypeError as te:
-    raise te
-finally:
-    x += 3
-    print("done")
+def foo(x, y):
+    print("Yo")
+
+foo = lambda x, y: print("Yo")

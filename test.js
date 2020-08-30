@@ -1,1 +1,1 @@
-try{print("hi");}catch(te){throw te;}finally{x+=3;print("done");}
+function foo(x,y){print("Yo");}var foo = function (x,y){return print("Yo");};

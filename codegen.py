@@ -1,5 +1,6 @@
 import ast
 import decimal
+from collections.abc import Iterable
 
 #TODO
 """
@@ -223,11 +224,23 @@ def JoinedStrPrint(node, nodemap):
         strval = strval[:-1]
     return strval
 
+def ReturnPrint(node, nodemap):
+    return f"return {generate_code(node.value)};"
+
 def FunctionDefPrint(node, nodemap):
-    keyword = "function"
-    name = node.name
+    name = getattr(node, "name", "")
     args = ','.join([arg.arg for arg in node.args.args])
-    return f"{keyword} {name}({args}){{"
+    fn = f"function {name}({args}){{"
+    if isinstance(node.body, Iterable):
+        fnbody = "".join([str(generate_code(node)) for node in node.body])
+        retstr = generate_code(node.returns)
+        fn += f"{fnbody}{retstr}}}"
+    else:
+        fn += f"return {str(generate_code(node.body))}}}"
+    return fn
+
+def LambdaPrint(node, nodemap):
+    return FunctionDefPrint(node, nodemap)
 
 def AssignPrint(node, nodemap):
     declare = "var"
@@ -405,6 +418,8 @@ _nodemap = {
     ast.With: WithPrint,
     ast.Try: TryPrint,
     ast.ExceptHandler: ExceptHandlerPrint,
+    ast.Return: ReturnPrint,
+    ast.Lambda: LambdaPrint,
 }
 def generate_code(node):
     try:

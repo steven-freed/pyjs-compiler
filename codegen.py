@@ -242,8 +242,7 @@ def LambdaPrint(node, nodemap):
 
 def AssignPrint(node, nodemap):
     asnstr = "var "
-    # TODO fix assign for tuples
-    if getattr(node.value, "elts", False) and getattr(node.targets[0], "elts", False):
+    if len(getattr(node.value, "elts", [])) == len(getattr(node.targets[0], "elts", [None])):
         for i in range(len(node.value.elts)):
             target, val = generate_code(node.targets[0].elts[i]), generate_code(node.value.elts[i])    
             if (i + 1) == len(node.value.elts):
@@ -251,8 +250,16 @@ def AssignPrint(node, nodemap):
             else:
                 asnstr += f"{target}={val},"
     else:
-        target, val = generate_code(node.targets[0]), generate_code(node.value)
-        asnstr += f"{target}={val};"
+        isiter = False
+        for n in node.targets:
+            if isinstance(n, ast.List) or isinstance(n, ast.Tuple):
+                isiter = True
+                break
+        if not isiter:
+            target, val = generate_code(node.targets[0]), generate_code(node.value)
+            asnstr += f"{target}={val};"
+        else:
+            raise SyntaxError("Unpacking is not currently supported")
     return asnstr
 
 def AugAssignPrint(node, nodemap):
@@ -306,10 +313,11 @@ def WhilePrint(node, nodemap):
     return f"while({cmptest}){{{whilebody}}}"
 
 def ForPrint(node, nodemap):
-    target, iter_ = generate_code(node.target), generate_code(node.iter)
-    range_ = None
+    iter_ = generate_code(node.iter)
+    range_, enum_ = None, None
     if iter_.find("range(") > -1:
-        range_ = eval(iter_[:-1]) 
+        range_ = eval(iter_[:-1])
+    target = generate_code(node.target)
     if range_:
         forstr = f"for(var {target}={range_.start};{target}<{range_.stop};{target}+={range_.step}){{"
     else:
@@ -473,9 +481,11 @@ def generate_code(node):
                 if getattr(child, "name", False):
                     GLOBALS.add(child.name)
                 elif getattr(child, "targets", False):
-                   [GLOBALS.add(target.id) for target in child.targets]
+                    if getattr(child.targets[0], "elts", False):
+                        [GLOBALS.add(el.id) for target in child.targets for el in target.elts]
+                    else:
+                        [GLOBALS.add(target.id) for target in child.targets]
                 mod += generate_code(child)
-            print("GLOBALS", GLOBALS)
             return mod 
         else:
             raise SyntaxError(f"Type {type(node)} not supported by JavaScript or already has built in functionality")
@@ -484,9 +494,12 @@ def generate_module(module, tree):
     data = f"var {module} = (function(){{"
     data += generate_code(tree)
     data += f"return {{"
-    for gvar in GLOBALS:
-        data += f"'{gvar}':{gvar},"
-    data = data[:-1] + "}})();"
+    for i in range(len(GLOBALS)):
+        if (i + 1) == len(GLOBALS):
+            data += f"'{gvar}':{gvar}"
+        else:
+            data += f"'{gvar}':{gvar},"
+    data += "}})();"
     return data
 
 def generate_pymods():

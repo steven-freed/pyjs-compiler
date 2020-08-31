@@ -1,3 +1,2 @@
-k = 'key'
-def foo():
-    print('hi')
+for i in x:
+    print(i)

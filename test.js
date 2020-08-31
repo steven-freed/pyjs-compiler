@@ -1,1 +1,1 @@
-var test = (function(){var k="key";function foo(){print("hi");}return {'foo':foo,'k':k}})();
+var test = (function(){for(var i in x){i = x[i];print(i);}return {}})();

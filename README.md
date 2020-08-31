@@ -12,9 +12,9 @@ Python to JavaScript Compiler. Compiles Python3 to the widely supported ES3 Java
 
 ## Supported
 **Literals**
-* str,int,float,decimal,f-strings,etc.  
+* str,int,float,decimal,f-strings,etc.
 **Variables**
-* everything except packing and unpacking  
+* everything except packing and unpacking
 **Expressions**
 * everything except Matrix Multiplication and kwargs  
 **Subscripting**

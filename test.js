@@ -1,1 +1,0 @@
-var test = (function(){for(var i in x){i = x[i];print(i);}return {}})();

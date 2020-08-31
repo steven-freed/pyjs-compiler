@@ -392,7 +392,9 @@ def GlobalPrint(node, nodemap):
     return ""
 
 def ClassDefPrint(node, nodemap):
-    raise SyntaxError("class not supported yet...")
+    init = [n for n in node.body if isinstance(n, ast.FunctionDef) and n.name == "__init__"]
+    print(node.body, init)
+    return ""
 
 _nodemap = {
     type(None): lambda a,b:"",
@@ -494,7 +496,7 @@ def generate_module(module, tree):
     data = f"var {module} = (function(){{"
     data += generate_code(tree)
     data += f"return {{"
-    for i in range(len(GLOBALS)):
+    for i, gvar in enumerate(GLOBALS):
         if (i + 1) == len(GLOBALS):
             data += f"'{gvar}':{gvar}"
         else:

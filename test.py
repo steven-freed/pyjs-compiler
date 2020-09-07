@@ -1,7 +1,10 @@
+def pyclick(e):
+    e.preventDefault()
+    alert(e)
 
-class Test(object):
-    STUFF = 4
-    def __init__(self):
-        self.x = 2
-    def foo(a,b):
-        pass
+def mutate(e):
+    e.preventDefault()
+    e.target.innerHTML = "It Works!"
+    def restore():
+        e.target.innerHTML = "Try Me, I Dare You..."
+    setTimeout(restore, 1000)

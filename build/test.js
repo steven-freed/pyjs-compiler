@@ -1,1 +1,1 @@
-var test = (function(){return {'Test':Test}})();
+var test = (function(){function pyclick(e){e.preventDefault();alert(e);}function mutate(e){e.preventDefault();e.target.innerHTML="It Works!";function restore(){e.target.innerHTML="Try Me, I Dare You...";}setTimeout(restore,1000);}return {'pyclick':pyclick,'mutate':mutate}})();

@@ -48,4 +48,5 @@ function zip(x, y) {
     }
     return zipped;
 }
-
+function str(obj) {return obj.__str__()}
+function repr(obj) {return obj.__repr__()}

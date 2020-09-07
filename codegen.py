@@ -49,18 +49,13 @@ def DeletePrint(node, nodemap):
 def CallPrint(node, nodemap):
     func = generate_code(node.func)
     callstr = f"{func}("
-    for arg in node.args:
-        arg = generate_code(arg)
-        callstr = f"{callstr}{arg},"
-    kwargdict = "{"
-    for kwarg in node.keywords:
-        kwarg = generate_code(kwarg)
-        kwargdict = f"{kwargdict}{kwarg},"
-    if kwargdict != "{":
-        kwargdict = f"{kwargdict[:-1]}}}"
-        callstr = f"{callstr}{kwargdict});"
-    else:
-        callstr = f"{callstr[:-1]});"
+    for i in range(len(node.args)):
+        arg = generate_code(node.args[i])
+        if i == len(node.args) - 1:
+            callstr = f"{callstr}{arg}"
+        else:
+            callstr = f"{callstr}{arg},"
+    callstr = f"{callstr});"
     return callstr
 
 def keywordPrint(node, nodemap):
@@ -197,7 +192,8 @@ def TuplePrint(node, nodemap):
     return f"[{elts}]"
 
 def NamePrint(node, nodemap):
-    return node.id
+    context = ("self", "this")
+    return node.id if node.id.find(context[0]) < 0 else context[1] 
 
 def FormattedValuePrint(node, nodemap):
     return generate_code(node.value)
@@ -241,7 +237,7 @@ def LambdaPrint(node, nodemap):
     return FunctionDefPrint(node, nodemap)
 
 def AssignPrint(node, nodemap):
-    asnstr = "var "
+    asnstr = "var " if isinstance(node.targets[0], ast.Name) else ""
     if len(getattr(node.value, "elts", [])) == len(getattr(node.targets[0], "elts", [None])):
         for i in range(len(node.value.elts)):
             target, val = generate_code(node.targets[0].elts[i]), generate_code(node.value.elts[i])    
@@ -260,6 +256,8 @@ def AssignPrint(node, nodemap):
             asnstr += f"{target}={val};"
         else:
             raise SyntaxError("Unpacking is not currently supported")
+    if asnstr.find("this") > -1:
+        asnstr = asnstr.replace("var", "")
     return asnstr
 
 def AugAssignPrint(node, nodemap):
@@ -372,7 +370,7 @@ def ExceptHandlerPrint(node, nodemap):
 
 def argumentsPrint(node, nodemap):
     # TODO fix kwargs, add if checks for null arg and put default
-    args = ','.join([arg.arg for arg in node.args])
+    args = ','.join([arg.arg for arg in node.args if arg.arg != "self"])
     return args
 
 def argPrint(node, nodemap):
@@ -392,9 +390,27 @@ def GlobalPrint(node, nodemap):
     return ""
 
 def ClassDefPrint(node, nodemap):
-    init = [n for n in node.body if isinstance(n, ast.FunctionDef) and n.name == "__init__"]
-    print(node.body, init)
-    return ""
+    bases = [generate_code(base) for base in node.bases]
+    classdef = {'name': node.name, 'bases': [bases], 'body': {'fns': {}, 'static': {}}}
+    for propnode in node.body:
+        if isinstance(propnode, ast.FunctionDef):
+            name = propnode.name
+            classdef['body']['fns'][name] = generate_code(propnode)
+        elif isinstance(propnode, ast.Assign):
+            name = propnode.targets[0].id
+            value = generate_code(propnode)
+            classdef['body']['static'][name] = value[value.index("=") + 1]
+        else:
+            raise SyntaxError(f'ClassDef node "{propnode}" not recognized')
+    classstr = classdef['body']['fns']['__init__'].replace('__init__', classdef["name"])
+    del classdef["body"]['fns']["__init__"]
+    for type_ in classdef["body"]:
+        for k, v in classdef["body"][type_].items():
+            if type_ == 'fns':
+                classstr += f"{classdef['name']}.prototype.{k}={v};" 
+            elif type_ == 'static':
+                classstr += f"{classdef['name']}.{k}={v};" 
+    return classstr
 
 _nodemap = {
     type(None): lambda a,b:"",

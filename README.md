@@ -8,7 +8,11 @@ Python to JavaScript Compiler. Compiles Python3 to the widely supported ES3 Java
 ```
 > python3 compiler.py "mymodule.py"
 ```
-4. View your JavaScript code in "mymodule.js"
+4. View your JavaScript code and HTML in the "build/" directory
+5. Serve your index.html file to see the magic
+
+## Web APIs
+Python is translated directly to JavaScript case sensitively so all Web APIs such as; document, window, etc. may be used if typed exactly to match JavaScript casing and method names.
 
 ## Supported
 **Literals**
@@ -37,7 +41,7 @@ Python to JavaScript Compiler. Compiles Python3 to the widely supported ES3 Java
 * with for context managers  
 
 **Function and Class Definitions**
-* everything except kwargs, decorators, classes, and yield  
+* everything except kwargs, decorators, and yield  
 
 **Async Await**
 * not supported because JavaScript is already asynchronous  
@@ -53,5 +57,4 @@ Python to JavaScript Compiler. Compiles Python3 to the widely supported ES3 Java
 * decorator support  
 * comprehension support  
 * Python standard modules support (e.g. datetime, collections, etc.)  
-* class support (totally function based right now)  
 * Web API for Component based Web Apps  
